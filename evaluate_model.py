@@ -31,25 +31,25 @@ PDD_train, PDD_val, X_train, X_val = load_data()
 # Compare true and predicted spectrum from NN
 #-------------------------------------------------------
 # Predict a spectrum
-sample_index = 0
+# sample_index = 0
 
-PDD_sample = PDD_val[sample_index]
-X_true = X_val[sample_index]
+# PDD_sample = PDD_val[sample_index]
+# X_true = X_val[sample_index]
 
-X_pred = model.predict(PDD_sample.reshape(1, -1))[0]
+# X_pred = model.predict(PDD_sample.reshape(1, -1))[0]
 
 
-plt.figure(figsize=(8, 5))
+# plt.figure(figsize=(8, 5))
 
-plt.plot(X_true, marker="o", label="True spectrum")
-plt.plot(X_pred, marker="o", label="Predicted spectrum")
+# plt.plot(X_true, marker="o", label="True spectrum")
+# plt.plot(X_pred, marker="o", label="Predicted spectrum")
 
-plt.xlabel("Energy bin")
-plt.ylabel("Weight")
-plt.legend()
-plt.grid(True)
-plt.tight_layout()
-plt.show()
+# plt.xlabel("Energy bin")
+# plt.ylabel("Weight")
+# plt.legend()
+# plt.grid(True)
+# plt.tight_layout()
+# plt.show()
 
 #-------------------------------------------------------
 # Average predictor
@@ -144,3 +144,55 @@ for sample_index in sample_indices:
     plt.grid(True)
     plt.tight_layout()
     plt.show()
+    
+
+
+# -------------------------------------------------------
+# MSE for each validation sample
+# -------------------------------------------------------
+
+mse_mean_each = np.mean(
+    (X_pred_mean - X_val)**2,
+    axis=1
+)
+
+mse_nn_each = np.mean(
+    (X_pred_nn - X_val)**2,
+    axis=1
+)
+
+mse_network_each = np.mean(
+    (X_pred_network - X_val)**2,
+    axis=1
+)
+
+nn_better_than_nearest = np.sum(
+    mse_network_each < mse_nn_each
+)
+
+nearest_better_than_nn = np.sum(
+    mse_nn_each < mse_network_each
+)
+
+plt.figure(figsize=(8, 5))
+
+plt.hist(
+    mse_nn_each,
+    bins=50,
+    alpha=0.6,
+    label="Nearest neighbor"
+)
+
+plt.hist(
+    mse_network_each,
+    bins=50,
+    alpha=0.6,
+    label="Neural network"
+)
+
+plt.xlabel("MSE per validation spectrum")
+plt.ylabel("Number of spectra")
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()

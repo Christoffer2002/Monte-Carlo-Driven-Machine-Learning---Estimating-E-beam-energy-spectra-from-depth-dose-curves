@@ -10,20 +10,21 @@ from pathlib import Path
 root_directory = Path(__file__).resolve().parent
 
 # Build model - my model
+# model = keras.Sequential([
+#     layers.Input(shape=(90,)),
+#     layers.Dense(128, activation="relu"),
+#     layers.Dense(256, activation="relu"),
+#     # layers.Dense(7, activation="relu")
+#     layers.Dense(7, activation="softmax")
+# ])
+
+# Article model
 model = keras.Sequential([
     layers.Input(shape=(90,)),
-    layers.Dense(128, activation="relu"),
-    layers.Dense(256, activation="relu"),
+    layers.Dense(2000, activation="relu"),
     # layers.Dense(7, activation="relu")
     layers.Dense(7, activation="softmax")
 ])
-
-# Article model
-# model = keras.Sequential([
-#     layers.Input(shape=(90,)),
-#     layers.Dense(2000, activation="relu"),
-#     layers.Dense(7, activation="relu")
-# ])
 
 model.compile(
     optimizer="adam",
@@ -42,7 +43,7 @@ history = model.fit(
     PDD_train,
     X_train,
     validation_data=(PDD_val, X_val),
-    epochs=200,
+    epochs=1000,
     batch_size=64
 )
 

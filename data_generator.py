@@ -43,33 +43,88 @@ r = np.column_stack(r)
 N_energies = r.shape[1]
 
 
+
+
+def generate_spectra(N_PDD, min_energy, max_energy):
+    """
+    generate_spectra generates energy spectra sampled from a gaussian
+    
+    """
+    
+    energies = np.arange(min_energy, max_energy + 1)
+
+    X = []
+
+    for _ in range(N_PDD):
+
+        # Random centre of spectrum
+        mu = np.random.uniform(min_energy, max_energy)
+
+        # Random width
+        sigma = np.random.uniform(0.7, 2.0)
+
+        spectrum = np.exp(-(energies - mu)**2 / (2 * sigma**2)
+        )
+
+        # Normalize area/sum to 1
+        spectrum = spectrum / np.sum(spectrum)
+
+        X.append(spectrum)
+
+    X = np.array(X)
+
+    return np.array(X)
+
+def generate_spectra2(N_PDD, min_energy, max_energy):
+
+    energies = np.arange(min_energy, max_energy + 1)
+
+    X = []
+
+    for _ in range(N_PDD):
+
+        # First Gaussian
+        mu1 = np.random.uniform(min_energy, max_energy)
+        sigma1 = np.random.uniform(0.5, 2.0)
+
+        gaussian1 = np.exp(
+            -(energies - mu1)**2 / (2 * sigma1**2)
+        )
+
+        # Second Gaussian
+        mu2 = np.random.uniform(min_energy, max_energy)
+        sigma2 = np.random.uniform(0.5, 2.0)
+
+        gaussian2 = np.exp(
+            -(energies - mu2)**2 / (2 * sigma2**2)
+        )
+
+        # Relative contribution of the two components
+        weight = np.random.uniform(0.2, 0.8)
+
+        spectrum = (
+            weight * gaussian1
+            + (1 - weight) * gaussian2
+        )
+
+        # Normalize
+        spectrum = spectrum / np.sum(spectrum)
+
+        X.append(spectrum)
+
+    return np.array(X)
+
+def generate_realistic_electron_spectrum():
+    
+    
+    return
+
 #Create PDDs
 # X = np.random.rand(N_energies, N_PDD)
-
 # X = X / np.sum(X, axis=0, keepdims=True)
 
-
-energies = np.arange(min_monoenergic, max_monoenergic + 1)
-
-X = []
-
-for _ in range(N_PDD):
-
-    # Random centre of spectrum
-    mu = np.random.uniform(min_monoenergic, max_monoenergic)
-
-    # Random width
-    sigma = np.random.uniform(0.7, 2.0)
-
-    spectrum = np.exp(-(energies - mu)**2 / (2 * sigma**2)
-    )
-
-    # Normalize area/sum to 1
-    spectrum = spectrum / np.sum(spectrum)
-
-    X.append(spectrum)
-
-X = np.array(X)
+#Generate energy spectra
+X = generate_spectra2(N_PDD, min_monoenergic, max_monoenergic)
 
 # Transpose for r @ X
 X = X.T
