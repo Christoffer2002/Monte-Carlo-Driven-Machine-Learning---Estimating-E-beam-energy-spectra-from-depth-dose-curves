@@ -16,15 +16,18 @@ from sklearn.metrics import mean_squared_error
 
 # Setup
 root_directory = Path(__file__).resolve().parent
-
+data_dir = root_directory / "data"
 
 # Load trained model
+# model = keras.models.load_model(
+#     root_directory / "models" / "spectrum_model.keras")
+# model = keras.models.load_model(
+#     root_directory / "models" / "50kEpochs.keras")
 model = keras.models.load_model(
-    root_directory / "models" / "spectrum_model.keras"
-)
+    root_directory / "models" / "20kEpochs.keras")
 
 # Load data
-PDD_train, PDD_val, X_train, X_val = load_data()
+PDD_train, PDD_val, X_train, X_val, N_energies = load_data()
 
 
 #-------------------------------------------------------
@@ -101,7 +104,7 @@ print("Neural network:          ", mse_network)
 # Compare predictions for individual spectra
 # -------------------------------------------------------
 
-energies = np.arange(8, 15)
+energies = np.load(data_dir / "Energies.npy")
 
 sample_indices = [0, 1, 2, 4]
 

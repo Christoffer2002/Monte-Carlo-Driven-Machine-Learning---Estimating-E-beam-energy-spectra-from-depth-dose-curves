@@ -12,19 +12,26 @@ from pathlib import Path
 
 # Number of depth dose curves
 N_PDD = 10000
-max_monoenergic = 14
-min_monoenergic = 8
 
 # Directory setup
 root_directory = Path(__file__).resolve().parent
 
-data_dir = root_directory / "data" / "MC-simulated-PDDs"
+# data_dir = root_directory / "data" / "MC-simulated-PDDs"
+data_dir = root_directory / "data" / "MonoenergicBeams"
+
+
 
 csv_files = list(data_dir.glob("*.csv"))
 
 
+def get_energy(file):
+    return float(file.stem.split("_")[1].replace("MeV", ""))
+
 # Sort by energy in filename
-csv_files.sort(key=lambda file: int(file.stem.split("_")[1].replace("MeV", "")))
+csv_files.sort(key=get_energy)
+
+# Energy corresponding to each column in R
+energies = np.array([get_energy(file) for file in csv_files])
 
 r = []
 
@@ -50,9 +57,6 @@ def generate_spectra(N_PDD, min_energy, max_energy):
     generate_spectra generates energy spectra sampled from a gaussian
     
     """
-    
-    energies = np.arange(min_energy, max_energy + 1)
-
     X = []
 
     for _ in range(N_PDD):
@@ -76,9 +80,6 @@ def generate_spectra(N_PDD, min_energy, max_energy):
     return np.array(X)
 
 def generate_spectra2(N_PDD, min_energy, max_energy):
-
-    energies = np.arange(min_energy, max_energy + 1)
-
     X = []
 
     for _ in range(N_PDD):
@@ -124,7 +125,7 @@ def generate_realistic_electron_spectrum():
 # X = X / np.sum(X, axis=0, keepdims=True)
 
 #Generate energy spectra
-X = generate_spectra2(N_PDD, min_monoenergic, max_monoenergic)
+X = generate_spectra2(N_PDD, min(energies), max(energies))
 
 # Transpose for r @ X
 X = X.T
@@ -140,6 +141,7 @@ X = X.T
 # Save data
 np.save(root_directory / "data/PDDs.npy", PDDs)
 np.save(root_directory / "data/Spectra.npy", X)
+np.save(root_directory / "data/Energies.npy", energies)
 
 
 # -------------------------------------------------------
@@ -150,7 +152,8 @@ depth = np.arange(r.shape[0])
 plt.figure(figsize=(8, 5))
 
 for i in range(r.shape[1]):
-    plt.plot(depth, r[:, i], label=f"Energy bin {i}")
+    #plt.plot(depth, r[:, i], label=f"Energy bin {i}")
+    plt.plot(depth, r[:, i])
 
 plt.xlabel("Depth bin")
 plt.ylabel("Dose")

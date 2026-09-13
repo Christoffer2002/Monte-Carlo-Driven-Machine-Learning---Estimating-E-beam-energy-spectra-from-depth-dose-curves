@@ -40,7 +40,7 @@ for energy in energies:
     # Normalize
     PDD_5 = PDD_5 / PDD_5.max()
     PDD_50 = PDD_50 / PDD_50.max()
-
+    
     # Difference
     difference = PDD_5 - PDD_50
 
@@ -133,3 +133,5 @@ plt.show()
 
 print("Mean standard deviation:", np.mean(std_PDD))
 print("Maximum standard deviation:", np.max(std_PDD))
+
+

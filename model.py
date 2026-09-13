@@ -9,22 +9,25 @@ from pathlib import Path
 # Setup
 root_directory = Path(__file__).resolve().parent
 
-# Build model - my model
-# model = keras.Sequential([
-#     layers.Input(shape=(90,)),
-#     layers.Dense(128, activation="relu"),
-#     layers.Dense(256, activation="relu"),
-#     # layers.Dense(7, activation="relu")
-#     layers.Dense(7, activation="softmax")
-# ])
+# Load data
+PDD_train, PDD_val, X_train, X_val, N_energies = load_data()
 
-# Article model
+# Build model - my model
 model = keras.Sequential([
     layers.Input(shape=(90,)),
-    layers.Dense(2000, activation="relu"),
-    # layers.Dense(7, activation="relu")
-    layers.Dense(7, activation="softmax")
+    layers.Dense(128, activation="relu"),
+    layers.Dense(256, activation="relu"),
+    # layers.Dense(N_energies, activation="relu")
+    layers.Dense(N_energies, activation="softmax")
 ])
+
+# Article model
+# model = keras.Sequential([
+#     layers.Input(shape=(90,)),
+#     layers.Dense(2000, activation="relu"),
+#     # layers.Dense(7, activation="relu")
+#     layers.Dense(N_energies, activation="softmax")
+# ])
 
 model.compile(
     optimizer="adam",
@@ -34,16 +37,30 @@ model.compile(
 model.summary()
 
 
-# Load data - PDDs: (10000, 90)  X:    (10000, 7)
-PDD_train, PDD_val, X_train, X_val = load_data()
 
+# Training stop when validation loss has not improved
+# stop_training = keras.callbacks.EarlyStopping(
+#     monitor="val_loss",
+#     patience=100,
+#     restore_best_weights=True
+# )
+
+# Train model
+# history = model.fit(
+#     PDD_train,
+#     X_train,
+#     validation_data=(PDD_val, X_val),
+#     epochs=50000,
+#     batch_size=64,
+#     callbacks=[stop_training]
+# )
 
 # Train model
 history = model.fit(
     PDD_train,
     X_train,
     validation_data=(PDD_val, X_val),
-    epochs=1000,
+    epochs=2500,
     batch_size=64
 )
 

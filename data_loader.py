@@ -9,11 +9,15 @@ def load_data():
     data_dir = root_directory / "data"
 
     PDDs = np.load(data_dir / "PDDs.npy")
-    # Normalize each PDD to its own maximum
-    #PDDs = PDDs / PDDs.max(axis=1, keepdims=True)
     
+    # Normalize each PDD to its own maximum
+    PDDs = PDDs / PDDs.max(axis=1, keepdims=True)
+    # Normalize each PDD to absolute max PDD value
+    # PDDs = PDDs / PDDs.max()
     
     X = np.load(data_dir / "Spectra.npy")
+    
+    N_energies = X.shape[1]
 
     PDD_train, PDD_val, X_train, X_val = train_test_split(
         PDDs,
@@ -22,4 +26,4 @@ def load_data():
         random_state=42
     )
 
-    return PDD_train, PDD_val, X_train, X_val
+    return PDD_train, PDD_val, X_train, X_val, N_energies
