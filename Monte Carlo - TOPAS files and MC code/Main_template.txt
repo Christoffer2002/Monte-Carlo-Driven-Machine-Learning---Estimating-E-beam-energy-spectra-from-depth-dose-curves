@@ -1,0 +1,305 @@
+# ============================================================
+# World setup
+# ============================================================
+
+s:Ge/World/Material = "G4_AIR" # "Vacuum"
+
+d:Ge/World/HLX = 20.0 cm # 10.0 cm
+d:Ge/World/HLY = 100.0 cm # 16.0 cm
+d:Ge/World/HLZ = 20.0 cm # 10.0 cm
+
+i:Ts/Seed = {SEED}
+
+#########################################################
+# Simulation & Console Settings
+#########################################################
+
+i:Ts/Verbosity = 0
+i:Ts/ShowHistoryCountAtInterval = 1000000
+i:Ts/NumberOfThreads = 0
+b:Ge/CheckForOverlaps = "False"
+
+#########################################################
+# Geometries
+#########################################################
+
+s:Ge/Setup/Type = "Group"
+s:Ge/Setup/Parent = "World"
+
+d:Ge/Setup/TransX = 0 m
+d:Ge/Setup/TransY = 0 mm
+
+#########################
+# Water Phantom
+#########################
+s:Ge/WaterPhantom/Type     = "TsBox"
+s:Ge/WaterPhantom/Parent   = "Setup"
+s:Ge/WaterPhantom/Material = "G4_WATER"
+
+# 10 x 10 x 10 cm water phantom
+d:Ge/WaterPhantom/HLX = 5.0 cm
+d:Ge/WaterPhantom/HLY = 5.0 cm
+d:Ge/WaterPhantom/HLZ = 5.0 cm
+
+d:Ge/WaterPhantom/TransX = 0.0 cm
+d:Ge/WaterPhantom/TransY = -82.38 cm # 0.0 cm
+d:Ge/WaterPhantom/TransZ = 0.0 cm
+
+#########################
+# PDD - DoseScorer
+#########################
+s:Ge/ScoringCylinder/Type = "TsCylinder"
+s:Ge/ScoringCylinder/Parent = "Setup"
+
+b:Ge/ScoringCylinder/IsParallel = "True"
+
+d:Ge/ScoringCylinder/RMax = 0.5 cm
+d:Ge/ScoringCylinder/HL = 4.5 cm
+
+# 90 × 1 mm depth bins
+i:Ge/ScoringCylinder/ZBins = 90
+
+d:Ge/ScoringCylinder/RotX = -90 deg
+
+d:Ge/ScoringCylinder/TransX = 0 cm
+d:Ge/ScoringCylinder/TransY = -81.88 cm # 0.5 cm
+d:Ge/ScoringCylinder/TransZ = 0 cm
+
+s:Ge/ScoringCylinder/DrawingStyle = "WireFrame"
+s:Ge/ScoringCylinder/Color = "Magenta"
+
+#########################
+# PDD - Scoring
+#########################
+s:Sc/DepthDose/Quantity = "DoseToMedium"
+s:Sc/DepthDose/Component = "ScoringCylinder"
+
+s:Sc/DepthDose/OutputType = "csv"
+s:Sc/DepthDose/OutputFile = "data/PDD_{SIMULATION_ID}"
+
+s:Sc/DepthDose/IfOutputFileAlreadyExists = "Overwrite"
+
+#########################
+# 2D Dose Scorer at dmax
+#########################
+s:Ge/DosePlane/Type = "TsBox"
+s:Ge/DosePlane/Parent = "WaterPhantom"
+b:Ge/DosePlane/IsParallel = "True"
+
+# 10 cm x 10 cm box
+d:Ge/DosePlane/HLX = 5.0 cm
+d:Ge/DosePlane/HLZ = 5.0 cm
+d:Ge/DosePlane/HLY = 0.5 cm # Run00010: 0.25 cm # 0.05 cm # Thin layer in beam direction
+
+# dmax = 30.5 mm below water surface
+# WaterPhantom coordinates: surface is Y = +5 cm
+d:Ge/DosePlane/TransX = 0 cm
+d:Ge/DosePlane/TransY = 2.15 cm # dmax: Air env (2.15 cm) - vacuum env (1.95 cm)
+d:Ge/DosePlane/TransZ = 0 cm
+
+# 1 mm x 1 mm pixels
+i:Ge/DosePlane/XBins = 100
+i:Ge/DosePlane/YBins = 1
+i:Ge/DosePlane/ZBins = 100
+
+#########################
+# Score dose in plane
+#########################
+s:Sc/Dose2D/Quantity = "DoseToMedium"
+s:Sc/Dose2D/Component = "DosePlane"
+
+s:Sc/Dose2D/OutputType = "csv"
+s:Sc/Dose2D/OutputFile = "data/Dose2D_{SIMULATION_ID}"
+
+s:Sc/Dose2D/IfOutputFileAlreadyExists = "Overwrite"
+
+#########################
+# Primary scattering foil - 12 MeV config
+#########################
+
+s:Ge/PrimaryFoil/Type     = "TsCylinder"
+s:Ge/PrimaryFoil/Parent   = "Setup"
+s:Ge/PrimaryFoil/Material = "G4_Ta"
+
+d:Ge/PrimaryFoil/RMin = 0.0 cm
+d:Ge/PrimaryFoil/RMax = 1.0 cm
+#d:Ge/PrimaryFoil/HL   = 0.003810 cm
+d:Ge/PrimaryFoil/HL = {PRIMARY_FOIL_HL} cm
+
+d:Ge/PrimaryFoil/TransX = 0.0 cm
+d:Ge/PrimaryFoil/TransY = 13.0 cm
+d:Ge/PrimaryFoil/TransZ = 0.0 cm
+
+d:Ge/PrimaryFoil/RotX = 90 deg
+
+#########################
+# Secondary foil - 12 MeV config
+# Stack center: Y = 9.62 cm
+# Beam direction: +Y -> -Y
+#########################
+# Disk 1
+s:Ge/SecondaryDisk1/Type     = "TsCylinder"
+s:Ge/SecondaryDisk1/Parent   = "Setup"
+s:Ge/SecondaryDisk1/Material = "G4_Ta"
+
+d:Ge/SecondaryDisk1/RMin = 0.0 cm
+d:Ge/SecondaryDisk1/RMax = 0.40005 cm
+d:Ge/SecondaryDisk1/HL   = 0.02413 cm
+
+d:Ge/SecondaryDisk1/TransX = 0.0 cm
+d:Ge/SecondaryDisk1/TransY = 9.67842 cm
+d:Ge/SecondaryDisk1/TransZ = 0.0 cm
+
+d:Ge/SecondaryDisk1/RotX = 90 deg
+
+# Stand 1
+s:Ge/SecondaryStand1/Type     = "TsCylinder"
+s:Ge/SecondaryStand1/Parent   = "Setup"
+s:Ge/SecondaryStand1/Material = "G4_Al"
+
+d:Ge/SecondaryStand1/RMin = 0.0 cm
+d:Ge/SecondaryStand1/RMax = 2.80853 cm
+d:Ge/SecondaryStand1/HL   = 0.00381 cm
+
+d:Ge/SecondaryStand1/TransX = 0.0 cm
+d:Ge/SecondaryStand1/TransY = 9.65048 cm
+d:Ge/SecondaryStand1/TransZ = 0.0 cm
+
+d:Ge/SecondaryStand1/RotX = 90 deg
+
+# Disk 2
+s:Ge/SecondaryDisk2/Type     = "TsCylinder"
+s:Ge/SecondaryDisk2/Parent   = "Setup"
+s:Ge/SecondaryDisk2/Material = "G4_Ta"
+
+d:Ge/SecondaryDisk2/RMin = 0.0 cm
+d:Ge/SecondaryDisk2/RMax = 0.49911 cm
+d:Ge/SecondaryDisk2/HL   = 0.05080 cm
+
+d:Ge/SecondaryDisk2/TransX = 0.0 cm
+d:Ge/SecondaryDisk2/TransY = 9.59587 cm
+d:Ge/SecondaryDisk2/TransZ = 0.0 cm
+
+d:Ge/SecondaryDisk2/RotX = 90 deg
+
+# Stand 2
+s:Ge/SecondaryStand2/Type     = "TsCylinder"
+s:Ge/SecondaryStand2/Parent   = "Setup"
+s:Ge/SecondaryStand2/Material = "G4_Al"
+
+d:Ge/SecondaryStand2/RMin = 0.0 cm
+d:Ge/SecondaryStand2/RMax = 2.80853 cm
+d:Ge/SecondaryStand2/HL   = 0.00381 cm
+
+d:Ge/SecondaryStand2/TransX = 0.0 cm
+d:Ge/SecondaryStand2/TransY = 9.54126 cm
+d:Ge/SecondaryStand2/TransZ = 0.0 cm
+
+d:Ge/SecondaryStand2/RotX = 90 deg
+
+#########################
+# Fluence scoring plane
+#########################
+
+s:Ge/FluencePlane/Type   = "TsBox"
+s:Ge/FluencePlane/Parent = "Setup"
+
+# Parallel world -> does not physically affect beam
+b:Ge/FluencePlane/IsParallel = "True"
+
+# 10 x 10 cm plane
+d:Ge/FluencePlane/HLX = 5.0 cm
+d:Ge/FluencePlane/HLY = 0.005 cm
+d:Ge/FluencePlane/HLZ = 5.0 cm
+
+d:Ge/FluencePlane/TransX = 0.0 cm
+d:Ge/FluencePlane/TransY = -77.28 cm # 5.1 cm
+d:Ge/FluencePlane/TransZ = 0.0 cm
+
+# Divide plane into 100 x 100 spatial bins
+i:Ge/FluencePlane/XBins = 100
+i:Ge/FluencePlane/ZBins = 100
+
+#########################
+# Fluence scorer
+#########################
+
+s:Sc/Fluence/Quantity  = "Fluence"
+s:Sc/Fluence/Component = "FluencePlane"
+
+s:Sc/Fluence/OutputType = "csv"
+s:Sc/Fluence/OutputFile = "data/Fluence_{SIMULATION_ID}"
+
+s:Sc/Fluence/IfOutputFileAlreadyExists = "Overwrite"
+
+#########################################################
+# Beam
+#########################################################
+# Number of histories
+i:nHist = 50000000
+
+s:Ge/BeamPos/Type = "Group"
+s:Ge/BeamPos/Parent = "Setup"
+
+# Beam position
+d:Ge/BeamPos/TransY = 15 cm
+d:Ge/BeamPos/RotX = -90 deg
+
+# Monoenergetic electron beam
+s:So/ebeam/Type = "Beam"
+s:So/ebeam/Component = "BeamPos"
+s:So/ebeam/BeamParticle = "e-"
+d:So/ebeam/BeamEnergy = {BEAM_ENERGY} MeV
+u:So/ebeam/BeamEnergySpread = 0
+
+# Beam size and distribution
+s:So/ebeam/BeamPositionDistribution = "Gaussian"
+s:So/ebeam/BeamPositionCutoffShape = "Ellipse"
+
+dc:So/ebeam/BeamPositionCutoffX = 10 mm # 1 mm before meeting 3
+dc:So/ebeam/BeamPositionCutoffY = 10 mm # 1 mm before meeting 3
+
+dc:So/ebeam/BeamPositionSpreadX = 3.3 mm # 0.25 mm before meeting 3
+dc:So/ebeam/BeamPositionSpreadY = 3.3 mm # 0.25 mm before meeting 3
+
+
+# Parallel electrons - no initial divergence
+s:So/ebeam/BeamAngularDistribution = "None"
+
+i:So/ebeam/NumberOfHistoriesInRun = nHist
+
+#########################################################
+# Physics
+#########################################################
+
+sv:Ph/Default/Modules = 1 "g4em-standard_opt4"
+
+d:Ph/Default/CutForAllParticles = 6 um
+
+b:Ph/ListProcesses = "False"
+
+#########################################################
+# Graphics
+#########################################################
+# Enable Graphics
+#b:Gr/Enable = "True"
+#b:Ts/UseQt = "True"
+#b:Ts/PauseBeforeQuit = "True"
+
+# Disable Graphics
+b:Gr/Enable = "False"
+b:Ts/UseQt = "False"
+b:Ts/PauseBeforeQuit = "False"
+
+# View
+s:Gr/ViewA/Type             = "OpenGL"
+i:Gr/ViewA/WindowSizeX      = 600
+i:Gr/ViewA/WindowSizeY      = 600
+d:Gr/ViewA/Theta            = 180 deg #270
+d:Gr/ViewA/Phi              = 0 deg #0
+#d:Gr/ViewA/PerspectiveAngle = 45 deg
+#s:Gr/ViewA/Projection       = "Orthogonal"
+s:Gr/ViewA/Projection       = "Perspective"
+#d:Gr/ViewA/PerspectiveAngle = 20 deg
+u:Gr/ViewA/Zoom             = 1.
+b:Gr/ViewA/HiddenLineRemovalForTrajectories = "True"
