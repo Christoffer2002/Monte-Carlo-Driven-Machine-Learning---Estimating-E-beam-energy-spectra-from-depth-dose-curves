@@ -279,3 +279,147 @@ plt.show()
 
 # print("Fluence train:", F_train.shape)
 # print("Fluence val:  ", F_val.shape)
+
+
+# ============================================================
+# Central dose profiles - Reference simulation
+# ============================================================
+
+# Reference parameters
+nominal_thickness = 0.007620  # cm
+nominal_energy = 13.3          # MeV
+
+# Load simulation parameters
+parameters = pd.read_csv(
+    data_dir / "simulation_parameters.csv"
+)
+
+# Find simulation closest to reference parameters
+parameters["distance"] = np.sqrt(
+    ((parameters["primary_thickness_cm"] - nominal_thickness)
+     / nominal_thickness)**2
+    +
+    ((parameters["beam_energy_MeV"] - nominal_energy)
+     / nominal_energy)**2
+)
+
+closest = parameters.loc[parameters["distance"].idxmin()]
+reference_id = f"{int(closest['simulation_id']):04d}"
+
+print(f"\nClosest simulation: {reference_id}")
+print(f"Foil thickness: {closest['primary_thickness_cm']:.6f} cm")
+print(f"Beam energy: {closest['beam_energy_MeV']:.4f} MeV")
+
+
+# ============================================================
+# Load reference dose map
+# ============================================================
+
+reference_df = load_topas_csv(
+    data_dir / f"Dose2D_{reference_id}.csv"
+)
+
+reference_dose = make_2d_map(reference_df)
+
+# Normalize to maximum
+#reference_dose = reference_dose / np.nanmax(reference_dose)
+
+
+# ============================================================
+# Extract central X and Z profiles
+# ============================================================
+
+nx, nz = reference_dose.shape
+
+# Coordinates of bin centers in mm
+x_coordinates = np.linspace(-50, 50, nx, endpoint=False) + 50/nx
+z_coordinates = np.linspace(-50, 50, nz, endpoint=False) + 50/nz
+
+# Average the two central bins (even-sized grid)
+cx = nx // 2
+cz = nz // 2
+
+# X profile: vary X, hold Z at center
+profile_x = np.mean(
+    reference_dose[:, cz-1:cz+1],
+    axis=1
+)
+
+# Z profile: vary Z, hold X at center
+profile_z = np.mean(
+    reference_dose[cx-1:cx+1, :],
+    axis=0
+)
+
+
+# ============================================================
+# Plot reference dose map and central X/Z profiles
+# ============================================================
+
+fig, axes = plt.subplots(1, 3, figsize=(17, 5))
+
+# 2D dose map
+im = axes[0].imshow(
+    reference_dose.T,
+    origin="lower",
+    extent=[-50, 50, -50, 50],
+    cmap="viridis",
+    vmin=0,
+    vmax=1
+)
+
+axes[0].axhline(0, color="red", linestyle="--", label="X profile")
+axes[0].axvline(0, color="white", linestyle="--", label="Z profile")
+
+axes[0].set_xlabel("X [mm]")
+axes[0].set_ylabel("Z [mm]")
+axes[0].set_title(f"2D Dose Map - Simulation {reference_id}")
+axes[0].legend()
+axes[0].set_aspect("equal")
+
+fig.colorbar(im, ax=axes[0], label="Normalized dose")
+
+# X profile
+axes[1].plot(x_coordinates, profile_x, color="red")
+
+axes[1].set_xlabel("X [mm]")
+axes[1].set_ylabel("Normalized dose")
+axes[1].set_title("Central X Profile")
+axes[1].grid(True)
+
+# Z profile
+axes[2].plot(z_coordinates, profile_z, color="blue")
+
+axes[2].set_xlabel("Z [mm]")
+axes[2].set_ylabel("Normalized dose")
+axes[2].set_title("Central Z Profile")
+axes[2].grid(True)
+
+plt.tight_layout()
+plt.show()
+
+
+# ============================================================
+# Calculate flatness within central ±20 mm
+# ============================================================
+
+def calculate_flatness(profile, coordinates):
+
+    region = np.abs(coordinates) <= 20
+    values = profile[region]
+
+    d_max = np.max(values)
+    d_min = np.min(values)
+
+    return 100 * (d_max - d_min) / (d_max + d_min)
+
+
+flatness_x = calculate_flatness(profile_x, x_coordinates)
+flatness_z = calculate_flatness(profile_z, z_coordinates)
+
+print(f"\nFlatness within ±20 mm:")
+print(f"X direction: {flatness_x:.2f}%")
+print(f"Z direction: {flatness_z:.2f}%")
+
+
+
