@@ -84,7 +84,7 @@ def make_2d_map(df):
     values = df.iloc[:, -1].to_numpy(dtype=float)
 
     # Reconstruct using bin indices
-    grid = np.full((100, 100), np.nan)
+    grid = np.full((50, 50), np.nan)
     grid[x_bin, z_bin] = values
 
     return grid
@@ -399,27 +399,115 @@ plt.tight_layout()
 plt.show()
 
 
+
 # ============================================================
-# Calculate flatness within central ±20 mm
+# 3D fluence - Original vs rebinned
 # ============================================================
 
-def calculate_flatness(profile, coordinates):
+simulation_id = "0001"
 
-    region = np.abs(coordinates) <= 20
-    values = profile[region]
+fluence_df = load_topas_csv(data_dir / f"Fluence_{simulation_id}.csv")
+fluence_map = make_2d_map(fluence_df)
 
-    d_max = np.max(values)
-    d_min = np.min(values)
+# Rebin 50x50 -> 25x25
+#fluence_rebinned = fluence_map.reshape(25, 2, 25, 2).mean(axis=(1, 3))
+fluence_rebinned = fluence_map.reshape(10, 5, 10, 5).mean(axis=(1, 3))
 
-    return 100 * (d_max - d_min) / (d_max + d_min)
+# Use the same normalization for both maps
+normalization = np.nanmax(fluence_rebinned)
+
+fluence_original = fluence_map / normalization
+fluence_rebinned = fluence_rebinned / normalization
+
+fig = plt.figure(figsize=(14, 6))
+
+for i, (fluence, title) in enumerate([
+    (fluence_original, "Original 50x50"),
+    (fluence_rebinned, "Rebinned 10x10")
+]):
+
+    nx, nz = fluence.shape
+
+    x = np.linspace(-50 + 50/nx, 50 - 50/nx, nx)
+    z = np.linspace(-50 + 50/nz, 50 - 50/nz, nz)
+
+    X, Z = np.meshgrid(x, z, indexing="ij")
+
+    ax = fig.add_subplot(1, 2, i+1, projection="3d")
+
+    ax.plot_surface(
+        X, Z, fluence,
+        cmap="viridis",
+        edgecolor="none",
+        rcount=nx,
+        ccount=nz
+    )
+
+    ax.set_xlabel("X [mm]")
+    ax.set_ylabel("Z [mm]")
+    ax.set_zlabel("Normalized fluence")
+    ax.set_title(title)
+    ax.set_zlim(0, 1.2)
+
+plt.tight_layout()
+plt.show()
 
 
-flatness_x = calculate_flatness(profile_x, x_coordinates)
-flatness_z = calculate_flatness(profile_z, z_coordinates)
+# ============================================================
+# Compare fluence profiles across simulations
+# ============================================================
 
-print(f"\nFlatness within ±20 mm:")
-print(f"X direction: {flatness_x:.2f}%")
-print(f"Z direction: {flatness_z:.2f}%")
+simulation_ids = ["0001", "0002", "0003", "0004", "0005"]
 
+fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
+for simulation_id in simulation_ids:
 
+    fluence_df = load_topas_csv(
+        data_dir / f"Fluence_{simulation_id}.csv"
+    )
+
+    fluence_map = make_2d_map(fluence_df)
+
+    # Rebin 50x50 -> 25x25
+    fluence_rebinned = fluence_map.reshape(25, 2, 25, 2).mean(axis=(1, 3))
+
+    # Normalize using rebinned maximum
+    normalization = np.nanmax(fluence_rebinned)
+
+    fluence_map = fluence_map / normalization
+    fluence_rebinned = fluence_rebinned / normalization
+
+    # Coordinates
+    x50 = np.linspace(-49, 49, 50)
+    x25 = np.linspace(-48, 48, 25)
+
+    # Central profiles averaged over a 12 mm strip
+    profile_x50 = np.nanmean(fluence_map[:, 22:28], axis=1)
+    profile_z50 = np.nanmean(fluence_map[22:28, :], axis=0)
+
+    profile_x25 = np.nanmean(fluence_rebinned[:, 11:14], axis=1)
+    profile_z25 = np.nanmean(fluence_rebinned[11:14, :], axis=0)
+
+    # Original profiles (transparent)
+    axes[0].plot(x50, profile_x50, alpha=0.2)
+    axes[1].plot(x50, profile_z50, alpha=0.2)
+
+    # Rebinned profiles
+    axes[0].plot(x25, profile_x25, label=f"Sim {simulation_id}")
+    axes[1].plot(x25, profile_z25, label=f"Sim {simulation_id}")
+
+axes[0].set_title("Central X fluence profiles")
+axes[0].set_xlabel("X [mm]")
+axes[0].set_ylabel("Normalized fluence")
+
+axes[1].set_title("Central Z fluence profiles")
+axes[1].set_xlabel("Z [mm]")
+axes[1].set_ylabel("Normalized fluence")
+
+for ax in axes:
+    ax.grid(alpha=0.3)
+    ax.legend()
+
+plt.tight_layout()
+plt.show()

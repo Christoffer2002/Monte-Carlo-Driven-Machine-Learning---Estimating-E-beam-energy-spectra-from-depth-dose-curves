@@ -21,11 +21,11 @@ model_folder = root_directory / "models"
 
 # Build model - Two input model
 # Branch 1 - PDD
-pdd_input = keras.Input(shape=(90,), name="PDD")
+pdd_input = keras.Input(shape=(45,), name="PDD")
 pdd = layers.Dense(64, activation="relu")(pdd_input) # 64 features
 
 # Branch 2 - Dosemap
-dose_input = keras.Input(shape=(100, 100), name="Dose2D")
+dose_input = keras.Input(shape=(50, 50), name="Dose2D")
 
 dose = layers.Flatten()(dose_input)
 dose = layers.Dense(128, activation="relu")(dose) # 128 features
@@ -36,9 +36,9 @@ combined = layers.Concatenate()([pdd, dose])
 
 x = layers.Dense(256, activation="relu")(combined) # 192 -> 256 features
 
-x = layers.Dense(100 * 100, activation="sigmoid")(x) # Sigmoid due to normed data
+x = layers.Dense(10 * 10, activation="sigmoid")(x) # Sigmoid due to normed data
 
-fluence_output = layers.Reshape((100, 100))(x) # Reshape to match F
+fluence_output = layers.Reshape((10, 10))(x) # Reshape to match F
 
 
 model = keras.Model(inputs=[pdd_input, dose_input], outputs=fluence_output)
@@ -46,9 +46,6 @@ model = keras.Model(inputs=[pdd_input, dose_input], outputs=fluence_output)
 model.compile(optimizer="adam", loss="mse")
 
 model.summary()
-
-
-
 
 
 

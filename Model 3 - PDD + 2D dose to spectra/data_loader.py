@@ -11,6 +11,10 @@ def load_data():
 
     # Load simulation parameters
     parameters = pd.read_csv(data_dir / "simulation_parameters.csv")
+    # Only load the first 500 simulations################################################################
+    parameters = parameters.iloc[:500]
+
+
 
     PDDs = []
     Dose2Ds = []
@@ -31,21 +35,26 @@ def load_data():
         # Load dosemap
         dose_df = pd.read_csv(data_dir / f"Dose2D_{ID}.csv", comment="#", header=None)
         # Create dosemap
-        dose_map = np.full((100, 100), np.nan)
+        dose_map = np.full((50, 50), np.nan)
         x = dose_df.iloc[:, 0].to_numpy(dtype=int)
         z = dose_df.iloc[:, 2].to_numpy(dtype=int)
+
         dose_map[x, z] = dose_df.iloc[:, -1].to_numpy()
         
         # Load fluence
         fluence_df = pd.read_csv(data_dir / f"Fluence_{ID}.csv", comment="#", header=None)
         # Create fluence mapping
-        fluence_map = np.full((100, 100), np.nan)
+        fluence_map = np.full((50, 50), np.nan)
         x = fluence_df.iloc[:, 0].to_numpy(dtype=int)
         z = fluence_df.iloc[:, 2].to_numpy(dtype=int)
         fluence_map[x, z] = fluence_df.iloc[:, -1].to_numpy()
+        
+        # Rebin fluence from 50x50 to 25x25#####################################################################
+        #fluence_map = fluence_map.reshape(25, 2, 25, 2).mean(axis=(1, 3))
+        fluence_map = fluence_map.reshape(10, 5, 10, 5).mean(axis=(1, 3))
 
         # Check dimensions and missing bins
-        if pdd.shape != (90,):
+        if pdd.shape != (45,):
             raise ValueError(f"Incorrect PDD shape: {ID}")
 
         if np.isnan(dose_map).any():
