@@ -16,46 +16,45 @@ root_directory = Path(__file__).resolve().parent
 model_folder = root_directory / "models"
 
 # Load data
-(PDD_train, PDD_val, Dose2D_train, Dose2D_val, F_train, F_val) = load_data()
+(PDD_train, PDD_val, Dose2D_train, Dose2D_val, param_train, param_val) = load_data()
 
-
-# Build model - Two input model
+#Model
 # Branch 1 - PDD
 pdd_input = keras.Input(shape=(45,), name="PDD")
 pdd = layers.Dense(64, activation="relu")(pdd_input) # 64 features
 
 # Branch 2 - Dosemap
 dose_input = keras.Input(shape=(50, 50), name="Dose2D")
+#dose_input = keras.Input(shape=(25, 25), name="Dose2D")
+# dose_input = keras.Input(shape=(10, 10), name="Dose2D")
 
 dose = layers.Flatten()(dose_input)
 dose = layers.Dense(128, activation="relu")(dose) # 128 features
 
-# Combining the two branches
+# Combine both branches
 combined = layers.Concatenate()([pdd, dose])
-
 
 x = layers.Dense(256, activation="relu")(combined) # 192 -> 256 features
 
-x = layers.Dense(10 * 10, activation="sigmoid")(x) # Sigmoid due to normed data
+x = layers.Dense(10 * 10, activation="sigmoid")(x) # Sigmoid - normed params
 
-fluence_output = layers.Reshape((10, 10))(x) # Reshape to match F
+param_output = layers.Dense(3, activation="sigmoid")(x) # 3 params
 
+model = keras.Model(inputs=[pdd_input, dose_input], outputs=param_output)
 
-model = keras.Model(inputs=[pdd_input, dose_input], outputs=fluence_output)
-
-model.compile(optimizer="adam", loss="mse")
+#model.compile(optimizer="adam", loss="mse")
+model.compile(optimizer=keras.optimizers.Adam(learning_rate=1e-4),loss="mse")
 
 model.summary()
 
+early_stopping = keras.callbacks.EarlyStopping(monitor="val_loss", patience=300, restore_best_weights=True)
 
-
-history = model.fit([PDD_train, Dose2D_train], F_train, validation_data=(
-        [PDD_val, Dose2D_val], F_val), epochs=2500, batch_size=16
-    #callbacks=[stop_training]
-)
-
+# history = model.fit([PDD_train, Dose2D_train], param_train, validation_data=(
+#         [PDD_val, Dose2D_val], param_val), epochs=5000, batch_size=16)
+history = model.fit([PDD_train, Dose2D_train], param_train, validation_data=([PDD_val, Dose2D_val], param_val),
+    epochs=5000, batch_size=16, callbacks=[early_stopping])
 # Save model
-model.save(model_folder / "fluence_model.keras")
+model.save(model_folder / "param_model.keras")
 
 
 

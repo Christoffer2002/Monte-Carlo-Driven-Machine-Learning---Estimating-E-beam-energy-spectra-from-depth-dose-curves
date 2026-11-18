@@ -1,36 +1,56 @@
 #!/bin/bash
 
-TOTAL=$(ls FoilSimulations/Main_*.txt | wc -l)
+# Stop if no simulation files are found
+shopt -s nullglob
+FILES=(FoilSimulations/Main_*.txt)
 
-# Count existing PDD output files
-N_OUTPUT=$(ls data/PDD_*.csv 2>/dev/null | wc -l)
+TOTAL=${#FILES[@]}
 
-# TOPAS creates the current output before it has finished,
-# so assume the final existing file may be incomplete.
-START=$N_OUTPUT
-
-# Simulation IDs start at 1
-if [ "$START" -lt 1 ]; then
-    START=1
+if [ "$TOTAL" -eq 0 ]; then
+    echo "No simulation files found!"
+    exit 1
 fi
 
+# Create data directory if necessary
+mkdir -p data
+
+# Count completed simulations
+N_COMPLETED=0
+
+for FILE in "${FILES[@]}"; do
+    ID=$(basename "$FILE" .txt)
+    ID=${ID#Main_}
+
+    if [ -f "data/Completed_${ID}.done" ]; then
+        ((N_COMPLETED++))
+    fi
+done
+
 echo "======================================"
-echo "Total simulations: $TOTAL"
-echo "Existing outputs:  $N_OUTPUT"
-echo "Starting from:      $START"
+echo "Simulation files:       $TOTAL"
+echo "Already completed:      $N_COMPLETED"
+echo "Remaining simulations:  $((TOTAL - N_COMPLETED))"
 echo "======================================"
 
-for ((i=START; i<=TOTAL; i++))
+# Run simulations
+for FILE in "${FILES[@]}"
 do
-    ID=$(printf "%04d" "$i")
-    FILE="FoilSimulations/Main_${ID}.txt"
+    ID=$(basename "$FILE" .txt)
+    ID=${ID#Main_}
+
+    # Skip successfully completed simulations
+    if [ -f "data/Completed_${ID}.done" ]; then
+        echo "Simulation $ID already completed. Skipping."
+        continue
+    fi
 
     echo ""
     echo "======================================"
-    echo "Simulation $i / $TOTAL"
-    echo "Running: $FILE"
+    echo "Running simulation $ID"
+    echo "File: $FILE"
     echo "======================================"
 
+    # Run TOPAS
     topas "$FILE"
 
     # Check whether TOPAS succeeded
@@ -41,10 +61,13 @@ do
         exit 1
     fi
 
+    # Mark simulation as successfully completed
+    touch "data/Completed_${ID}.done"
+
     echo "Finished simulation $ID"
 done
 
 echo ""
 echo "======================================"
-echo "All $TOTAL simulations finished!"
+echo "All available simulations completed!"
 echo "======================================"

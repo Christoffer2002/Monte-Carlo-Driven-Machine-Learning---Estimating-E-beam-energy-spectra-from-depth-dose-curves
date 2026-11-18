@@ -57,7 +57,7 @@ d:Ge/ScoringCylinder/RMax = 0.5 cm
 d:Ge/ScoringCylinder/HL = 4.5 cm
 
 # 90 × 1 mm depth bins
-i:Ge/ScoringCylinder/ZBins = 90
+i:Ge/ScoringCylinder/ZBins = 45 # 90
 
 d:Ge/ScoringCylinder/RotX = -90 deg
 
@@ -89,7 +89,7 @@ b:Ge/DosePlane/IsParallel = "True"
 # 10 cm x 10 cm box
 d:Ge/DosePlane/HLX = 5.0 cm
 d:Ge/DosePlane/HLZ = 5.0 cm
-d:Ge/DosePlane/HLY = 0.5 cm # Run00010: 0.25 cm # 0.05 cm # Thin layer in beam direction
+d:Ge/DosePlane/HLY = 1 cm # Run00010: 0.25 cm # 0.05 cm # Thin layer in beam direction
 
 # dmax = 30.5 mm below water surface
 # WaterPhantom coordinates: surface is Y = +5 cm
@@ -98,9 +98,9 @@ d:Ge/DosePlane/TransY = 2.15 cm # dmax: Air env (2.15 cm) - vacuum env (1.95 cm)
 d:Ge/DosePlane/TransZ = 0 cm
 
 # 1 mm x 1 mm pixels
-i:Ge/DosePlane/XBins = 100
+i:Ge/DosePlane/XBins = 50 # 100
 i:Ge/DosePlane/YBins = 1
-i:Ge/DosePlane/ZBins = 100
+i:Ge/DosePlane/ZBins = 50 # 100
 
 #########################
 # Score dose in plane
@@ -143,7 +143,8 @@ s:Ge/SecondaryDisk1/Parent   = "Setup"
 s:Ge/SecondaryDisk1/Material = "G4_Ta"
 
 d:Ge/SecondaryDisk1/RMin = 0.0 cm
-d:Ge/SecondaryDisk1/RMax = 0.40005 cm
+#d:Ge/SecondaryDisk1/RMax = 0.40005 cm
+d:Ge/SecondaryDisk1/RMax = {SECONDARY_DISK1_RADIUS} cm
 d:Ge/SecondaryDisk1/HL   = 0.02413 cm
 
 d:Ge/SecondaryDisk1/TransX = 0.0 cm
@@ -173,7 +174,8 @@ s:Ge/SecondaryDisk2/Parent   = "Setup"
 s:Ge/SecondaryDisk2/Material = "G4_Ta"
 
 d:Ge/SecondaryDisk2/RMin = 0.0 cm
-d:Ge/SecondaryDisk2/RMax = 0.49911 cm
+#d:Ge/SecondaryDisk2/RMax = 0.49911 cm
+d:Ge/SecondaryDisk2/RMax = {SECONDARY_DISK2_RADIUS} cm
 d:Ge/SecondaryDisk2/HL   = 0.05080 cm
 
 d:Ge/SecondaryDisk2/TransX = 0.0 cm
@@ -216,9 +218,9 @@ d:Ge/FluencePlane/TransX = 0.0 cm
 d:Ge/FluencePlane/TransY = -77.28 cm # 5.1 cm
 d:Ge/FluencePlane/TransZ = 0.0 cm
 
-# Divide plane into 100 x 100 spatial bins
-i:Ge/FluencePlane/XBins = 100
-i:Ge/FluencePlane/ZBins = 100
+# Divide plane into 50 x 50 spatial bins
+i:Ge/FluencePlane/XBins = 50
+i:Ge/FluencePlane/ZBins = 50
 
 #########################
 # Fluence scorer
@@ -236,7 +238,7 @@ s:Sc/Fluence/IfOutputFileAlreadyExists = "Overwrite"
 # Beam
 #########################################################
 # Number of histories
-i:nHist = 50000000
+i:nHist = 25000000
 
 s:Ge/BeamPos/Type = "Group"
 s:Ge/BeamPos/Parent = "Setup"
