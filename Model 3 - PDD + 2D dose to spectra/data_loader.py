@@ -11,8 +11,6 @@ def load_data():
 
     # Load simulation parameters
     parameters = pd.read_csv(data_dir / "simulation_parameters.csv")
-    # Only load the first 500 simulations################################################################
-    parameters = parameters.iloc[:500]
 
     PDDs = []
     Dose2Ds = []
@@ -45,14 +43,6 @@ def load_data():
         dose_map[x, z] = dose_df.iloc[:, -1].to_numpy()
         #dose_map = dose_map.reshape(25, 2, 25, 2).mean(axis=(1, 3))
         # dose_map = dose_map.reshape(10, 5, 10, 5).mean(axis=(1, 3))
-        
-        # Check dimensions and missing bins
-        if pdd.shape != (45,):
-            raise ValueError(f"Incorrect PDD shape: {ID}")
-
-        if np.isnan(dose_map).any():
-            raise ValueError(f"Missing Dose2D bins: {ID}")
-
 
         PDDs.append(pdd)
         Dose2Ds.append(dose_map)
@@ -73,9 +63,13 @@ def load_data():
     # Disk radii are varied using same scaling factor - after norm col 3&4 are equal:
     Parameters = Parameters[:, :3]
 
-    # Train / validation split (20:80)
-    (PDD_train, PDD_val, Dose2D_train, Dose2D_val, param_train, param_val) = train_test_split(
-        PDDs, Dose2Ds, Parameters, test_size=0.2, random_state=42)
+    # Train split
+    (PDD_train, PDD_temp, Dose2D_train, Dose2D_temp, param_train, param_temp) = train_test_split(
+        PDDs, Dose2Ds, Parameters, test_size=0.3, random_state=42)
+
+    # Validation and test split
+    (PDD_val, PDD_test, Dose2D_val, Dose2D_test, param_val, param_test) = train_test_split(
+        PDD_temp, Dose2D_temp, param_temp, test_size=0.5, random_state=42)
     
     
     #Normalize to max value
@@ -84,14 +78,14 @@ def load_data():
     
     PDD_train = PDD_train / pdd_max
     PDD_val = PDD_val / pdd_max
+    PDD_test = PDD_test / pdd_max
+    
     Dose2D_train = Dose2D_train / dose_max
     Dose2D_val = Dose2D_val / dose_max
+    Dose2D_test = Dose2D_test / dose_max
 
-    return (PDD_train, PDD_val, Dose2D_train, Dose2D_val, param_train, param_val)
+    return (PDD_train, PDD_val, PDD_test, Dose2D_train, Dose2D_val, Dose2D_test, param_train, param_val, param_test)
 
-#(PDD_train, PDD_val, Dose2D_train, Dose2D_val, param_train, param_val) = load_data()
+#(PDD_train, PDD_val, PDD_test, Dose2D_train, Dose2D_val, Dose2D_test, param_train, param_val, param_test) = load_data()
 
 #print(Dose2D_train.shape)
-
-
-

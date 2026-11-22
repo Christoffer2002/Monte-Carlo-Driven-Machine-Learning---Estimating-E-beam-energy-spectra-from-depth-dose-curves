@@ -14,10 +14,10 @@ from pathlib import Path
 # Setup
 root_directory = Path(__file__).resolve().parent
 model_folder = root_directory / "models"
+keras.utils.set_random_seed(42)
 
 # Load data
-(PDD_train, PDD_val, Dose2D_train, Dose2D_val, param_train, param_val) = load_data()
-
+(PDD_train, PDD_val, PDD_test, Dose2D_train, Dose2D_val, Dose2D_test, param_train, param_val, param_test) = load_data()
 #Model
 # Branch 1 - PDD
 pdd_input = keras.Input(shape=(45,), name="PDD")
@@ -25,8 +25,6 @@ pdd = layers.Dense(64, activation="relu")(pdd_input) # 64 features
 
 # Branch 2 - Dosemap
 dose_input = keras.Input(shape=(50, 50), name="Dose2D")
-#dose_input = keras.Input(shape=(25, 25), name="Dose2D")
-# dose_input = keras.Input(shape=(10, 10), name="Dose2D")
 
 dose = layers.Flatten()(dose_input)
 dose = layers.Dense(128, activation="relu")(dose) # 128 features
@@ -34,9 +32,7 @@ dose = layers.Dense(128, activation="relu")(dose) # 128 features
 # Combine both branches
 combined = layers.Concatenate()([pdd, dose])
 
-x = layers.Dense(256, activation="relu")(combined) # 192 -> 256 features
-
-x = layers.Dense(10 * 10, activation="sigmoid")(x) # Sigmoid - normed params
+x = layers.Dense(512, activation="relu")(combined) # 192 -> 512 features
 
 param_output = layers.Dense(3, activation="sigmoid")(x) # 3 params
 
@@ -54,7 +50,7 @@ early_stopping = keras.callbacks.EarlyStopping(monitor="val_loss", patience=300,
 history = model.fit([PDD_train, Dose2D_train], param_train, validation_data=([PDD_val, Dose2D_val], param_val),
     epochs=5000, batch_size=16, callbacks=[early_stopping])
 # Save model
-model.save(model_folder / "param_model.keras")
+model.save(model_folder / "final_model.keras")
 
 
 
