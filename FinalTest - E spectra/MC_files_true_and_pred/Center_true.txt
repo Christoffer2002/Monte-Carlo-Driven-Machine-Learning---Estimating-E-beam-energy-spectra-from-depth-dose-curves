@@ -1,0 +1,277 @@
+# ============================================================
+# World setup
+# ============================================================
+
+s:Ge/World/Material = "G4_AIR" # "Vacuum"
+
+d:Ge/World/HLX = 20.0 cm # 10.0 cm
+d:Ge/World/HLY = 100.0 cm # 16.0 cm
+d:Ge/World/HLZ = 20.0 cm # 10.0 cm
+
+i:Ts/Seed = 998
+
+#########################################################
+# Simulation & Console Settings
+#########################################################
+
+i:Ts/Verbosity = 0
+i:Ts/ShowHistoryCountAtInterval = 1000000
+i:Ts/NumberOfThreads = 0
+b:Ge/CheckForOverlaps = "False"
+
+#########################################################
+# Geometries
+#########################################################
+
+s:Ge/Setup/Type = "Group"
+s:Ge/Setup/Parent = "World"
+
+d:Ge/Setup/TransX = 0 m
+d:Ge/Setup/TransY = 0 mm
+
+#########################
+# Primary scattering foil - 12 MeV config
+#########################
+
+s:Ge/PrimaryFoil/Type     = "TsCylinder"
+s:Ge/PrimaryFoil/Parent   = "Setup"
+s:Ge/PrimaryFoil/Material = "G4_Ta"
+
+d:Ge/PrimaryFoil/RMin = 0.0 cm
+d:Ge/PrimaryFoil/RMax = 1.0 cm
+#d:Ge/PrimaryFoil/HL   = 0.003810 cm
+d:Ge/PrimaryFoil/HL = 0.004002 cm
+
+d:Ge/PrimaryFoil/TransX = 0.0 cm
+d:Ge/PrimaryFoil/TransY = 13.0 cm
+d:Ge/PrimaryFoil/TransZ = 0.0 cm
+
+d:Ge/PrimaryFoil/RotX = 90 deg
+
+#########################
+# Secondary foil - 12 MeV config
+# Stack center: Y = 9.62 cm
+# Beam direction: +Y -> -Y
+#########################
+# Disk 1
+s:Ge/SecondaryDisk1/Type     = "TsCylinder"
+s:Ge/SecondaryDisk1/Parent   = "Setup"
+s:Ge/SecondaryDisk1/Material = "G4_Ta"
+
+d:Ge/SecondaryDisk1/RMin = 0.0 cm
+#d:Ge/SecondaryDisk1/RMax = 0.40005 cm
+d:Ge/SecondaryDisk1/RMax = 0.400224 cm
+d:Ge/SecondaryDisk1/HL   = 0.02413 cm
+
+d:Ge/SecondaryDisk1/TransX = 0.0 cm
+d:Ge/SecondaryDisk1/TransY = 9.67842 cm
+d:Ge/SecondaryDisk1/TransZ = 0.0 cm
+
+d:Ge/SecondaryDisk1/RotX = 90 deg
+
+# Stand 1
+s:Ge/SecondaryStand1/Type     = "TsCylinder"
+s:Ge/SecondaryStand1/Parent   = "Setup"
+s:Ge/SecondaryStand1/Material = "G4_Al"
+
+d:Ge/SecondaryStand1/RMin = 0.0 cm
+d:Ge/SecondaryStand1/RMax = 2.80853 cm
+d:Ge/SecondaryStand1/HL   = 0.00381 cm
+
+d:Ge/SecondaryStand1/TransX = 0.0 cm
+d:Ge/SecondaryStand1/TransY = 9.65048 cm
+d:Ge/SecondaryStand1/TransZ = 0.0 cm
+
+d:Ge/SecondaryStand1/RotX = 90 deg
+
+# Disk 2
+s:Ge/SecondaryDisk2/Type     = "TsCylinder"
+s:Ge/SecondaryDisk2/Parent   = "Setup"
+s:Ge/SecondaryDisk2/Material = "G4_Ta"
+
+d:Ge/SecondaryDisk2/RMin = 0.0 cm
+#d:Ge/SecondaryDisk2/RMax = 0.49911 cm
+d:Ge/SecondaryDisk2/RMax = 0.499328 cm
+d:Ge/SecondaryDisk2/HL   = 0.05080 cm
+
+d:Ge/SecondaryDisk2/TransX = 0.0 cm
+d:Ge/SecondaryDisk2/TransY = 9.59587 cm
+d:Ge/SecondaryDisk2/TransZ = 0.0 cm
+
+d:Ge/SecondaryDisk2/RotX = 90 deg
+
+# Stand 2
+s:Ge/SecondaryStand2/Type     = "TsCylinder"
+s:Ge/SecondaryStand2/Parent   = "Setup"
+s:Ge/SecondaryStand2/Material = "G4_Al"
+
+d:Ge/SecondaryStand2/RMin = 0.0 cm
+d:Ge/SecondaryStand2/RMax = 2.80853 cm
+d:Ge/SecondaryStand2/HL   = 0.00381 cm
+
+d:Ge/SecondaryStand2/TransX = 0.0 cm
+d:Ge/SecondaryStand2/TransY = 9.54126 cm
+d:Ge/SecondaryStand2/TransZ = 0.0 cm
+
+d:Ge/SecondaryStand2/RotX = 90 deg
+
+#########################
+# Fluence scoring plane
+#########################
+s:Ge/FluencePlane/Type = "TsBox"
+s:Ge/FluencePlane/Parent = "Setup"
+
+b:Ge/FluencePlane/IsParallel = "True"
+
+d:Ge/FluencePlane/HLX = 0.75 cm
+d:Ge/FluencePlane/HLY = 0.005 cm
+d:Ge/FluencePlane/HLZ = 0.75 cm
+
+d:Ge/FluencePlane/TransX = 0.0 cm
+d:Ge/FluencePlane/TransY = -77.28 cm
+d:Ge/FluencePlane/TransZ = 0.0 cm
+
+#########################
+# Electron spectrum 100
+#########################
+s:Sc/ElectronSpectrum100/Quantity = "Fluence"
+s:Sc/ElectronSpectrum100/Component = "FluencePlane"
+sv:Sc/ElectronSpectrum100/OnlyIncludeParticlesNamed = 1 "e-"
+
+i:Sc/ElectronSpectrum100/EBins = 100
+d:Sc/ElectronSpectrum100/EBinMin = 0.0 MeV
+d:Sc/ElectronSpectrum100/EBinMax = 15.0 MeV
+s:Sc/ElectronSpectrum100/EBinEnergy = "PreStep"
+
+sv:Sc/ElectronSpectrum100/Report = 3 "Sum" "Mean" "Standard_Deviation"
+
+s:Sc/ElectronSpectrum100/OutputType = "csv"
+s:Sc/ElectronSpectrum100/OutputFile = "data/Center_True_ElectronSpectrum100"
+s:Sc/ElectronSpectrum100/IfOutputFileAlreadyExists = "Overwrite"
+#########################
+# Electron spectrum 1000
+#########################
+s:Sc/ElectronSpectrum1000/Quantity = "Fluence"
+s:Sc/ElectronSpectrum1000/Component = "FluencePlane"
+sv:Sc/ElectronSpectrum1000/OnlyIncludeParticlesNamed = 1 "e-"
+
+i:Sc/ElectronSpectrum1000/EBins = 1000
+d:Sc/ElectronSpectrum1000/EBinMin = 0.0 MeV
+d:Sc/ElectronSpectrum1000/EBinMax = 15.0 MeV
+s:Sc/ElectronSpectrum1000/EBinEnergy = "PreStep"
+
+sv:Sc/ElectronSpectrum1000/Report = 3 "Sum" "Mean" "Standard_Deviation"
+
+s:Sc/ElectronSpectrum1000/OutputType = "csv"
+s:Sc/ElectronSpectrum1000/OutputFile = "data/Center_True_ElectronSpectrum1000"
+s:Sc/ElectronSpectrum1000/IfOutputFileAlreadyExists = "Overwrite"
+#########################
+# Photon spectrum 100
+#########################
+s:Sc/PhotonSpectrum100/Quantity = "Fluence"
+s:Sc/PhotonSpectrum100/Component = "FluencePlane"
+sv:Sc/PhotonSpectrum100/OnlyIncludeParticlesNamed = 1 "gamma"
+
+i:Sc/PhotonSpectrum100/EBins = 100
+d:Sc/PhotonSpectrum100/EBinMin = 0.0 MeV
+d:Sc/PhotonSpectrum100/EBinMax = 15.0 MeV
+s:Sc/PhotonSpectrum100/EBinEnergy = "PreStep"
+
+sv:Sc/PhotonSpectrum100/Report = 3 "Sum" "Mean" "Standard_Deviation"
+
+s:Sc/PhotonSpectrum100/OutputType = "csv"
+s:Sc/PhotonSpectrum100/OutputFile = "data/Center_True_PhotonSpectrum100"
+s:Sc/PhotonSpectrum100/IfOutputFileAlreadyExists = "Overwrite"
+#########################
+# Photon spectrum 1000
+#########################
+s:Sc/PhotonSpectrum1000/Quantity = "Fluence"
+s:Sc/PhotonSpectrum1000/Component = "FluencePlane"
+sv:Sc/PhotonSpectrum1000/OnlyIncludeParticlesNamed = 1 "gamma"
+
+i:Sc/PhotonSpectrum1000/EBins = 1000
+d:Sc/PhotonSpectrum1000/EBinMin = 0.0 MeV
+d:Sc/PhotonSpectrum1000/EBinMax = 15.0 MeV
+s:Sc/PhotonSpectrum1000/EBinEnergy = "PreStep"
+
+sv:Sc/PhotonSpectrum1000/Report = 3 "Sum" "Mean" "Standard_Deviation"
+
+s:Sc/PhotonSpectrum1000/OutputType = "csv"
+s:Sc/PhotonSpectrum1000/OutputFile = "data/Center_True_PhotonSpectrum1000"
+s:Sc/PhotonSpectrum1000/IfOutputFileAlreadyExists = "Overwrite"
+#########################################################
+# Beam
+#########################################################
+# Number of histories
+#i:nHist = 1000000
+#i:Tf/NumberOfSequentialTimes = 25
+i:nHist = 25000000
+i:Tf/NumberOfSequentialTimes = 1
+#i:nHist = 100000000
+#i:Tf/NumberOfSequentialTimes = 25
+
+s:Ge/BeamPos/Type = "Group"
+s:Ge/BeamPos/Parent = "Setup"
+
+# Beam position
+d:Ge/BeamPos/TransY = 15 cm
+d:Ge/BeamPos/RotX = -90 deg
+
+# Monoenergetic electron beam
+s:So/ebeam/Type = "Beam"
+s:So/ebeam/Component = "BeamPos"
+s:So/ebeam/BeamParticle = "e-"
+d:So/ebeam/BeamEnergy = 12.7263 MeV
+u:So/ebeam/BeamEnergySpread = 0
+
+# Beam size and distribution
+s:So/ebeam/BeamPositionDistribution = "Gaussian"
+s:So/ebeam/BeamPositionCutoffShape = "Ellipse"
+
+dc:So/ebeam/BeamPositionCutoffX = 10 mm # 1 mm before meeting 3
+dc:So/ebeam/BeamPositionCutoffY = 10 mm # 1 mm before meeting 3
+
+dc:So/ebeam/BeamPositionSpreadX = 3.3 mm # 0.25 mm before meeting 3
+dc:So/ebeam/BeamPositionSpreadY = 3.3 mm # 0.25 mm before meeting 3
+
+
+# Parallel electrons - no initial divergence
+s:So/ebeam/BeamAngularDistribution = "None"
+
+i:So/ebeam/NumberOfHistoriesInRun = nHist
+
+#########################################################
+# Physics
+#########################################################
+
+sv:Ph/Default/Modules = 1 "g4em-standard_opt4"
+
+d:Ph/Default/CutForAllParticles = 6 um
+
+b:Ph/ListProcesses = "False"
+
+#########################################################
+# Graphics
+#########################################################
+# Enable Graphics
+#b:Gr/Enable = "True"
+#b:Ts/UseQt = "True"
+#b:Ts/PauseBeforeQuit = "True"
+
+# Disable Graphics
+b:Gr/Enable = "False"
+b:Ts/UseQt = "False"
+b:Ts/PauseBeforeQuit = "False"
+
+# View
+s:Gr/ViewA/Type             = "OpenGL"
+i:Gr/ViewA/WindowSizeX      = 600
+i:Gr/ViewA/WindowSizeY      = 600
+d:Gr/ViewA/Theta            = 180 deg #270
+d:Gr/ViewA/Phi              = 0 deg #0
+#d:Gr/ViewA/PerspectiveAngle = 45 deg
+#s:Gr/ViewA/Projection       = "Orthogonal"
+s:Gr/ViewA/Projection       = "Perspective"
+#d:Gr/ViewA/PerspectiveAngle = 20 deg
+u:Gr/ViewA/Zoom             = 1.
+b:Gr/ViewA/HiddenLineRemovalForTrajectories = "True"
