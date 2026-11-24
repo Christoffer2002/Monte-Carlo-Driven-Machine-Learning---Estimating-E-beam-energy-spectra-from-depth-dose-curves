@@ -103,38 +103,84 @@ def plot_spectrum(ax, true_file, pred_file, n_bins, title):
         spine.set_linewidth(0.8)
         spine.set_color("#555555")
 
+
+
 # ============================================================
-# Plot Low, Center and High
+# Low configuration
 # ============================================================
 
-for case in ["Low", "Center", "High"]:
+fig, axes = plt.subplots(2, 1, figsize=(5, 5.5))
 
-    fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+plot_spectrum(
+    axes[0],
+    "Low_True_ElectronSpectrum100.csv",
+    "Low_Pred_ElectronSpectrum100.csv",
+    100,
+    "Electron spectrum"
+)
 
-    spectra = [
-        ("ElectronSpectrum100", 100, "Electron spectrum - 100 bins"),
-        ("ElectronSpectrum1000", 1000, "Electron spectrum - 1000 bins"),
-        ("PhotonSpectrum100", 100, "Photon spectrum - 100 bins"),
-        ("PhotonSpectrum1000", 1000, "Photon spectrum - 1000 bins")
-    ]
+plot_spectrum(
+    axes[1],
+    "Low_True_PhotonSpectrum100.csv",
+    "Low_Pred_PhotonSpectrum100.csv",
+    100,
+    "Photon spectrum"
+)
 
-    for ax, (spectrum, n_bins, title) in zip(axes.flat, spectra):
+plt.tight_layout()
+fig.savefig(root / "Low_spectra.pdf", bbox_inches="tight")
+plt.show()
 
-        true_file = f"{case}_True_{spectrum}.csv"
-        pred_file = f"{case}_Pred_{spectrum}.csv"
 
-        plot_spectrum(
-            ax,
-            true_file,
-            pred_file,
-            n_bins,
-            title
-        )
+# ============================================================
+# Center configuration
+# ============================================================
 
-    fig.suptitle(
-        f"{case} configuration: Ground truth vs predicted",
-        fontsize=14
-    )
+fig, axes = plt.subplots(2, 1, figsize=(5, 5.5))
 
-    plt.tight_layout()
-    plt.show()
+plot_spectrum(
+    axes[0],
+    "Center_True_ElectronSpectrum100.csv",
+    "Center_Pred_ElectronSpectrum100.csv",
+    100,
+    "Electron spectrum"
+)
+
+plot_spectrum(
+    axes[1],
+    "Center_True_PhotonSpectrum100.csv",
+    "Center_Pred_PhotonSpectrum100.csv",
+    100,
+    "Photon spectrum"
+)
+
+plt.tight_layout()
+fig.savefig(root / "Center_spectra.pdf", bbox_inches="tight")
+plt.show()
+
+
+# ============================================================
+# High configuration
+# ============================================================
+
+fig, axes = plt.subplots(2, 1, figsize=(5, 5.5))
+
+plot_spectrum(
+    axes[0],
+    "High_True_ElectronSpectrum100.csv",
+    "High_Pred_ElectronSpectrum100.csv",
+    100,
+    "Electron spectrum"
+)
+
+plot_spectrum(
+    axes[1],
+    "High_True_PhotonSpectrum100.csv",
+    "High_Pred_PhotonSpectrum100.csv",
+    100,
+    "Photon spectrum"
+)
+
+plt.tight_layout()
+fig.savefig(root / "High_spectra.pdf", bbox_inches="tight")
+plt.show()
